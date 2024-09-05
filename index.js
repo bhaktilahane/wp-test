@@ -11,24 +11,45 @@ app.post('/twilio/whatsappwebhook', (req, res) => {
     
     console.log(`Received message from ${From}: ${Body}`);
     
-    // Customize your message here
-    const responseMessage = `You said: "${Body}".`;
+    // Customize the message
+    const employeeName = "John Doe";  // Sample data - Replace with actual dynamic data
+    const location = "New York Office"; // Sample data - Replace with actual dynamic data
+    const time = new Date().toLocaleTimeString();
+    const department = "IT Department";  // Sample data - Replace with actual dynamic data
+    
+    // Customized message content
+    const responseMessage = `
+        Welcome Admin,
+        Employee Name: ${employeeName}
+        Location: ${location}
+        Time: ${time}
+        Department: ${department}
+
+        Please approve or reject the check-in.
+    `;
     
     // Set up Twilio response
     const MessagingResponse = twilio.twiml.MessagingResponse;
     const twiml = new MessagingResponse();
-    twiml.message(responseMessage);
-    
+
+    // Adding text content
+    const message = twiml.message(responseMessage);
+
+    // Add buttons for Approve and Reject (interactive templates)
+    message.body("Approve").action("https://your-approve-url.com").method('POST');
+    message.body("Reject").action("https://your-reject-url.com").method('POST');
+
     res.writeHead(200, { 'Content-Type': 'text/xml' });
     res.end(twiml.toString());
 });
+
+// Simple route for testing
 app.get('/', (req, res) => {
-   res.send("Hwllo")
+    res.send("Hello");
 });
 
-// Start server on port 3000
+// Start the server
 const port = 3000;
 app.listen(port, () => {
     console.log(`Webhook server running on http://localhost:${port}`);
-    
 });
