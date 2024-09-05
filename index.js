@@ -12,7 +12,7 @@ app.post('/twilio/whatsappwebhook', (req, res) => {
     console.log(`Received message from ${From}: ${Body}`);
     
     // Customize your message here
-    const responseMessage = `You said: "${Body}". This is your customizable reply!`;
+    const responseMessage = `You said: "${Body}".`;
     
     // Set up Twilio response
     const MessagingResponse = twilio.twiml.MessagingResponse;
