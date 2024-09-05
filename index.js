@@ -20,14 +20,14 @@ app.post('/twilio/whatsappwebhook', (req, res) => {
     const time = new Date().toLocaleTimeString();
     const department = "Computer Department";
 
-    // Initial message logic (if admin hasn't replied with Approve/Reject yet)
+    // Handle responses based on the message content
     if (lowerCaseBody === '1' || lowerCaseBody.includes('approve')) {
         twiml.message("Thank you! The employee has successfully checked in.");
-        // You can add any additional logic for a successful check-in here
+        // Additional logic for successful check-in can be added here
     } else if (lowerCaseBody === '2' || lowerCaseBody.includes('reject')) {
         twiml.message("Thank you! The employee check-in has been rejected.");
-        // You can add any additional logic for a rejected check-in here
-    } else {
+        // Additional logic for rejected check-in can be added here
+    } else if (lowerCaseBody === 'show') {
         // Send the initial check-in request message
         const responseMessage = `
             Dear Admin,
@@ -49,6 +49,9 @@ You have received a check-in request from an employee. Please find the details b
             Trackify
         `;
         twiml.message(responseMessage);
+    } else {
+        // If the message is neither approval/rejection nor 'show'
+        twiml.message("To receive employee check-in updates, please reply with 'show'. For approving or rejecting check-ins, use '1' for Approve or '2' for Reject.");
     }
 
     // Respond to Twilio
