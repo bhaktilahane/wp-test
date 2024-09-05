@@ -9,7 +9,7 @@ app.use(express.urlencoded({ extended: true }));
 app.post('/twilio/whatsappwebhook', (req, res) => {
     const { Body, From } = req.body;
     const lowerCaseBody = Body.trim().toLowerCase();
-
+    
     // Set up Twilio response
     const MessagingResponse = twilio.twiml.MessagingResponse;
     const twiml = new MessagingResponse();
@@ -20,14 +20,15 @@ app.post('/twilio/whatsappwebhook', (req, res) => {
     const time = new Date().toLocaleTimeString();
     const department = "IT Department";
 
-    if (lowerCaseBody === 'approve') {
+    // Initial message logic (if admin hasn't replied with Approve/Reject yet)
+    if (lowerCaseBody === '1' || lowerCaseBody.includes('approve')) {
         twiml.message("Thank you! The employee has successfully checked in.");
-        // Additional logic for a successful check-in
-    } else if (lowerCaseBody === 'reject') {
+        // You can add any additional logic for a successful check-in here
+    } else if (lowerCaseBody === '2' || lowerCaseBody.includes('reject')) {
         twiml.message("Thank you! The employee check-in has been rejected.");
-        // Additional logic for a rejected check-in
+        // You can add any additional logic for a rejected check-in here
     } else {
-        // Send the initial check-in request message with buttons
+        // Send the initial check-in request message
         const responseMessage = `
             Welcome Admin,
             Employee Name: ${employeeName}
@@ -35,39 +36,11 @@ app.post('/twilio/whatsappwebhook', (req, res) => {
             Time: ${time}
             Department: ${department}
 
-            Please approve or reject the employee check-in:
+            Please reply with:
+            1️⃣ Approve
+            2️⃣ Reject
         `;
-
-        const message = twiml.message(responseMessage);
-        
-        // Adding buttons (interactive message)
-        message.media({
-            contentType: 'application/json',
-            interactive: {
-                type: "button",
-                body: {
-                    text: "Please approve or reject the employee check-in:"
-                },
-                action: {
-                    buttons: [
-                        {
-                            type: "reply",
-                            reply: {
-                                id: "approve",
-                                title: "Approve"
-                            }
-                        },
-                        {
-                            type: "reply",
-                            reply: {
-                                id: "reject",
-                                title: "Reject"
-                            }
-                        }
-                    ]
-                }
-            }
-        });
+        twiml.message(responseMessage);
     }
 
     // Respond to Twilio
