@@ -31,12 +31,13 @@ app.post('/twilio/whatsappwebhook', (req, res) => {
         // Send the initial check-in request message
         const responseMessage = `
             Dear Admin,
+
 You have received a check-in request from an employee. Please find the details below:
 
-            Employee Name: ${employeeName}
-            Location: ${location}
-            Time of Check-In: ${time}
-            Department: ${department}
+           Employee Name: ${employeeName}
+           Location: ${location}
+           Time of Check-In: ${time}
+           Department: ${department}
 
             To proceed, kindly respond with one of the following options:
             1️⃣ Approve - Confirm the employee's check-in.
