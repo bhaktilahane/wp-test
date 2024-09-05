@@ -31,8 +31,7 @@ app.post('/twilio/whatsappwebhook', (req, res) => {
         // Send the initial check-in request message
         const responseMessage = `
             Dear Admin,
-
-            You have received a check-in request from an employee. Please find the details below:
+You have received a check-in request from an employee. Please find the details below:
 
             Employee Name: ${employeeName}
             Location: ${location}
@@ -46,7 +45,7 @@ app.post('/twilio/whatsappwebhook', (req, res) => {
             Thank you for your attention to this matter.
 
             Best regards,
-            Your Company
+            Trackify
         `;
         twiml.message(responseMessage);
     }
