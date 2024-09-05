@@ -30,15 +30,23 @@ app.post('/twilio/whatsappwebhook', (req, res) => {
     } else {
         // Send the initial check-in request message
         const responseMessage = `
-            Welcome Admin,
+            Dear Admin,
+
+            You have received a check-in request from an employee. Please find the details below:
+
             Employee Name: ${employeeName}
             Location: ${location}
-            Time: ${time}
+            Time of Check-In: ${time}
             Department: ${department}
 
-            Please reply with:
-            1️⃣ Approve
-            2️⃣ Reject
+            To proceed, kindly respond with one of the following options:
+            1️⃣ Approve - Confirm the employee's check-in.
+            2️⃣ Reject - Decline the employee's check-in.
+
+            Thank you for your attention to this matter.
+
+            Best regards,
+            Your Company
         `;
         twiml.message(responseMessage);
     }
