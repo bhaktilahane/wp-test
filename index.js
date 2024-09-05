@@ -15,10 +15,10 @@ app.post('/twilio/whatsappwebhook', (req, res) => {
     const twiml = new MessagingResponse();
 
     // Simulated employee data (replace with dynamic data)
-    const employeeName = "John Doe";
-    const location = "New York Office";
+    const employeeName = "Employee1";
+    const location = "Somaiya Vidyavihar University";
     const time = new Date().toLocaleTimeString();
-    const department = "IT Department";
+    const department = "Computer Department";
 
     // Initial message logic (if admin hasn't replied with Approve/Reject yet)
     if (lowerCaseBody === '1' || lowerCaseBody.includes('approve')) {
