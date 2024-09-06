@@ -28,7 +28,7 @@ app.get('/twilio/whatsappwebhook', async (req, res) => {
 
 
 // Route for the WhatsApp webhook
-app.post('/twilio/whatsappwebhook', (req, res) => {
+app.post('/twilio/whatsappwebhook',async (req, res)=> {
     const { Body, From } = req.body;
     const lowerCaseBody = Body.trim().toLowerCase();
     
@@ -37,10 +37,19 @@ app.post('/twilio/whatsappwebhook', (req, res) => {
     const twiml = new MessagingResponse();
 
     // Simulated employee data (replace with dynamic data)
-    const employeeName = "Employee1";
-    const location = "Somaiya Vidyavihar University";
-    const time = new Date().toLocaleTimeString();
-    const department = "Computer Department";
+    const latestAttendance = await OffsiteAttendance.findOne()
+            .sort({ latestCheckin: -1 }) // Sort by latest check-in time (descending)
+            .populate('emp_id'); // Populate emp_id with Employee details
+
+        if (!latestAttendance || !latestAttendance.emp_id) {
+            return res.status(404).send('No attendance record found.');
+        }
+
+        // Fetch the employee's name, latest check-in time, and location
+        const employeeName = latestAttendance.emp_id.name;
+        const location = "Somaiya Vidyavihar University"; // Set location (replace if it's stored in DB)
+        const time = latestAttendance.latestCheckin ? latestAttendance.latestCheckin.toLocaleTimeString() : 'Not checked in yet';
+
 
     // Handle responses based on the message content
     if (lowerCaseBody === '1' || lowerCaseBody.includes('approve')) {
