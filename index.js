@@ -1,19 +1,22 @@
 const express = require('express');
 const twilio = require('twilio');
-const app = express();
 const cors = require('cors');
 const connectTOMongo = require('./db.js');
 const Employee = require('./Models/Emp.js');
 const OffsiteAttendance = require('./Models/offsiteAttendance.js');
 
+const app = express();
+
 // Middleware to parse incoming requests
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); // To parse JSON bodies
 app.use(cors());
+
+// Connect to MongoDB
 connectTOMongo();
 
-// Route for the WhatsApp webhook (changed to POST)
-app.post('/twilio/whatsappwebhook', (req, res) => {
+// Route for the WhatsApp webhook
+app.post('/twilio/whatsappwebhook', async (req, res) => {
     const { Body, From } = req.body;
     const lowerCaseBody = Body.trim().toLowerCase();   
     
@@ -21,44 +24,68 @@ app.post('/twilio/whatsappwebhook', (req, res) => {
     const MessagingResponse = twilio.twiml.MessagingResponse;
     const twiml = new MessagingResponse();
 
-    // Simulated employee data (replace with dynamic data)
-    const employeeName = "Employee1";
-    const location = "Somaiya Vidyavihar University";
-    const time = new Date().toLocaleTimeString();
-    const department = "Computer Department";
+    // Retrieve employee data from MongoDB based on the phone number (From)
+    try {
+        const employee = await Employee.findOne({ phone: From });
 
-    // Handle responses based on the message content
-    if (lowerCaseBody === '1' || lowerCaseBody.includes('approve')) {
-        twiml.message("Thank you! The employee has successfully checked in.");
-        // Additional logic for successful check-in can be added here
-    } else if (lowerCaseBody === '2' || lowerCaseBody.includes('reject')) {
-        twiml.message("Thank you! The employee check-in has been rejected.");
-        // Additional logic for rejected check-in can be added here
-    } else if (lowerCaseBody === 'show') {
-        // Send the initial check-in request message
-        const responseMessage = `
-            Dear Admin,
+        if (!employee) {
+            twiml.message("Sorry, we could not find your record. Please contact the admin.");
+            return res.writeHead(200, { 'Content-Type': 'text/xml' }).end(twiml.toString());
+        }
 
-            You have received a check-in request from an employee. Please find the details below:
+        const employeeName = employee.name;
+        const location = employee.location; // Assuming employee data contains location
+        const time = new Date().toLocaleTimeString();
+        const department = employee.department;
 
-            Employee Name: ${employeeName}
-            Location: ${location}
-            Time of Check-In: ${time}
-            Department: ${department}
+        // Handle responses based on the message content
+        if (lowerCaseBody === '1' || lowerCaseBody.includes('approve')) {
+            await OffsiteAttendance.create({
+                employeeName,
+                location,
+                time,
+                department,
+                status: 'approved'
+            });
+            twiml.message("Thank you! Your check-in has been approved.");
+        } else if (lowerCaseBody === '2' || lowerCaseBody.includes('reject')) {
+            await OffsiteAttendance.create({
+                employeeName,
+                location,
+                time,
+                department,
+                status: 'rejected'
+            });
+            twiml.message("Thank you! Your check-in has been rejected.");
+        } else if (lowerCaseBody === 'show') {
+            // Send the initial check-in request message
+            const responseMessage = `
+                Dear Admin,
 
-            To proceed, kindly respond with one of the following options:
-            1️⃣ Approve - Confirm the employee's check-in.
-            2️⃣ Reject - Decline the employee's check-in.
+                You have received a check-in request from an employee. Please find the details below:
 
-            Thank you for your attention to this matter.
+                Employee Name: ${employeeName}
+                Location: ${location}
+                Time of Check-In: ${time}
+                Department: ${department}
 
-            Best regards,
-            Trackify
-        `;
-        twiml.message(responseMessage);
-    } else {
-        // If the message is neither approval/rejection nor 'show'
-        twiml.message("To receive employee check-in updates, please reply with 'show'. For approving or rejecting check-ins, use '1' for Approve or '2' for Reject.");
+                To proceed, kindly respond with one of the following options:
+                1️⃣ Approve - Confirm the employee's check-in.
+                2️⃣ Reject - Decline the employee's check-in.
+
+                Thank you for your attention to this matter.
+
+                Best regards,
+                Trackify
+            `;
+            twiml.message(responseMessage);
+        } else {
+            // If the message is neither approval/rejection nor 'show'
+            twiml.message("To receive employee check-in updates, please reply with 'show'. For approving or rejecting check-ins, use '1' for Approve or '2' for Reject.");
+        }
+    } catch (error) {
+        console.error("Error handling webhook request:", error);
+        twiml.message("There was an error processing your request. Please try again later.");
     }
 
     // Respond to Twilio
