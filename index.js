@@ -13,20 +13,6 @@ app.use(cors());
 connectTOMongo();
 
 
-app.get('/twilio/whatsappwebhook', async (req, res) => {
-    try {
-        // Fetch all OffsiteAttendance records from the database
-        const allAttendance = await OffsiteAttendance.find(); // Populating emp_id with employee details
-
-        // Respond with the attendance data
-        res.status(200).json(allAttendance);
-    } catch (error) {
-        console.error('Error fetching offsite attendance:', error);
-        res.status(500).json({ error: 'An error occurred while fetching offsite attendance.' });
-    }
-});
-
-
 // Route for the WhatsApp webhook
 app.post('/twilio/whatsappwebhook',async (req, res)=> {
     const { Body, From } = req.body;
@@ -37,18 +23,18 @@ app.post('/twilio/whatsappwebhook',async (req, res)=> {
     const twiml = new MessagingResponse();
 
     // Simulated employee data (replace with dynamic data)
-    const latestAttendance = await OffsiteAttendance.findOne()
-            .sort({ latestCheckin: -1 }) // Sort by latest check-in time (descending)
-            .populate('emp_id'); // Populate emp_id with Employee details
+    // const latestAttendance = await OffsiteAttendance.findOne()
+    //         .sort({ latestCheckin: -1 }) // Sort by latest check-in time (descending)
+    //         .populate('emp_id'); // Populate emp_id with Employee details
 
-        if (!latestAttendance || !latestAttendance.emp_id) {
-            return res.status(404).send('No attendance record found.');
-        }
+    //     if (!latestAttendance || !latestAttendance.emp_id) {
+    //         return res.status(404).send('No attendance record found.');
+    //     }
 
         // Fetch the employee's name, latest check-in time, and location
-        const employeeName = latestAttendance.emp_id.name;
-        const location = "Somaiya Vidyavihar University"; // Set location (replace if it's stored in DB)
-        const time = latestAttendance.latestCheckin ? latestAttendance.latestCheckin.toLocaleTimeString() : 'Not checked in yet';
+        // const employeeName = latestAttendance.emp_id.name;
+        // const location = "Somaiya Vidyavihar University"; // Set location (replace if it's stored in DB)
+        // const time = latestAttendance.latestCheckin ? latestAttendance.latestCheckin.toLocaleTimeString() : 'Not checked in yet';
 
 
     // Handle responses based on the message content
@@ -65,10 +51,10 @@ app.post('/twilio/whatsappwebhook',async (req, res)=> {
 
 You have received a check-in request from an employee. Please find the details below:
 
-           Employee Name: ${employeeName}
-           Location: ${location}
-           Time of Check-In: ${time}
-           Department: ${department}
+           Employee Name: TOyash
+           Location: office
+           Time of Check-In: 2:00
+           Department:comps
 
             To proceed, kindly respond with one of the following options:
             1️⃣ Approve - Confirm the employee's check-in.
