@@ -1,3 +1,18 @@
+const express = require('express');
+const twilio = require('twilio');
+const app = express();
+const cors = require('cors');
+const connectTOMongo = require('./db.js');
+const Employee = require('./Models/Emp.js');
+const OffsiteAttendance = require('./Models/offsiteAttendance.js');
+
+// Middleware to parse incoming requests
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); // To parse JSON bodies
+app.use(cors());
+connectTOMongo();
+
+// Route for the WhatsApp webhook (changed to POST)
 app.post('/twilio/whatsappwebhook', (req, res) => {
     const { Body, From } = req.body;
     const lowerCaseBody = Body.trim().toLowerCase();   
@@ -20,9 +35,9 @@ app.post('/twilio/whatsappwebhook', (req, res) => {
         twiml.message("Thank you! The employee check-in has been rejected.");
         // Additional logic for rejected check-in can be added here
     } else if (lowerCaseBody === 'show') {
-        // Send the initial check-in request message with improved formatting
+        // Send the initial check-in request message
         const responseMessage = `
-Dear Admin,
+ Dear Admin,
 
 Employee Check-In Request
 
@@ -42,7 +57,8 @@ Thank you for your attention to this matter.
 
 Best regards,
 Trackify
-        `;
+`;
+
         twiml.message(responseMessage);
     } else {
         // If the message is neither approval/rejection nor 'show'
@@ -52,4 +68,15 @@ Trackify
     // Respond to Twilio
     res.writeHead(200, { 'Content-Type': 'text/xml' });
     res.end(twiml.toString());
+});
+
+// Simple route for testing
+app.get('/', (req, res) => {
+    res.send("Hello");
+});
+
+// Start the server on port 3000
+const port = 3000;
+app.listen(port, () => {
+    console.log(`Webhook server running on http://localhost:${port}`);
 });
