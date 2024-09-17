@@ -1,18 +1,3 @@
-const express = require('express');
-const twilio = require('twilio');
-const app = express();
-const cors = require('cors');
-const connectTOMongo = require('./db.js');
-const Employee = require('./Models/Emp.js');
-const OffsiteAttendance = require('./Models/offsiteAttendance.js');
-
-// Middleware to parse incoming requests
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json()); // To parse JSON bodies
-app.use(cors());
-connectTOMongo();
-
-// Route for the WhatsApp webhook (changed to POST)
 app.post('/twilio/whatsappwebhook', (req, res) => {
     const { Body, From } = req.body;
     const lowerCaseBody = Body.trim().toLowerCase();   
@@ -35,25 +20,28 @@ app.post('/twilio/whatsappwebhook', (req, res) => {
         twiml.message("Thank you! The employee check-in has been rejected.");
         // Additional logic for rejected check-in can be added here
     } else if (lowerCaseBody === 'show') {
-        // Send the initial check-in request message
+        // Send the initial check-in request message with improved formatting
         const responseMessage = `
-            Dear Admin,
+Dear Admin,
 
-            You have received a check-in request from an employee. Please find the details below:
+Employee Check-In Request
 
-            Employee Name: ${employeeName}
-            Location: ${location}
-            Time of Check-In: ${time}
-            Department: ${department}
+You have received a check-in request from an employee. Please review the details below:
 
-            To proceed, kindly respond with one of the following options:
-            1️⃣ Approve - Confirm the employee's check-in.
-            2️⃣ Reject - Decline the employee's check-in.
+Employee Name: ${employeeName}
+Location: ${location}
+Time of Check-In: ${time}
+Department: ${department}
 
-            Thank you for your attention to this matter.
+To proceed, kindly respond with one of the following options:
 
-            Best regards,
-            Trackify
+1. Approve - Confirm the employee's check-in.
+2. Reject - Decline the employee's check-in.
+
+Thank you for your attention to this matter.
+
+Best regards,
+Trackify
         `;
         twiml.message(responseMessage);
     } else {
@@ -64,15 +52,4 @@ app.post('/twilio/whatsappwebhook', (req, res) => {
     // Respond to Twilio
     res.writeHead(200, { 'Content-Type': 'text/xml' });
     res.end(twiml.toString());
-});
-
-// Simple route for testing
-app.get('/', (req, res) => {
-    res.send("Hello");
-});
-
-// Start the server on port 3000
-const port = 3000;
-app.listen(port, () => {
-    console.log(`Webhook server running on http://localhost:${port}`);
 });
