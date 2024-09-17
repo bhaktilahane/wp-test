@@ -62,7 +62,17 @@ Trackify
         twiml.message(responseMessage);
     } else {
         // If the message is neither approval/rejection nor 'show'
-        twiml.message("To receive employee check-in updates, please reply with 'show'. For approving or rejecting check-ins, use '1' for Approve or '2' for Reject.");
+        const defaultMessage = `
+Welcome, Admin.
+
+We are pleased to introduce our new manual check-in feature for managing employee attendance from offsite locations.
+
+To receive check-in updates, reply with 'show'. To approve or reject a check-in, respond with '1' for Approve or '2' for Reject.
+
+Thank you for your support and prompt attention.
+`;
+
+        twiml.message(defaultMessage);
     }
 
     // Respond to Twilio
