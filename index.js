@@ -25,7 +25,7 @@ app.post('/twilio/whatsappwebhook', (req, res) => {
     const employeeName = "Employee1";
     const location = "GAIL India-Navi Mumbai";
     const time = "2:08 AM";
-    const department = "Computer Department";
+    
 
     // Handle responses based on the message content
     if (lowerCaseBody === '1' || lowerCaseBody.includes('approve')) {
@@ -46,7 +46,6 @@ You have received a check-in request from an employee. Please review the details
 Employee Name: ${employeeName}
 Location: ${location}
 Time of Check-In: ${time}
-Department: ${department}
 
 To proceed, kindly respond with one of the following options:
 
