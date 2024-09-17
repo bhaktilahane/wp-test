@@ -23,8 +23,8 @@ app.post('/twilio/whatsappwebhook', (req, res) => {
 
     // Simulated employee data (replace with dynamic data)
     const employeeName = "Employee1";
-    const location = "Somaiya Vidyavihar University";
-    const time = new Date().toLocaleTimeString();
+    const location = "GAIL India-Navi Mumbai";
+    const time = "2:08 AM";
     const department = "Computer Department";
 
     // Handle responses based on the message content
